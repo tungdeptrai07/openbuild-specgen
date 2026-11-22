@@ -1,0 +1,5 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>OpenBuild SpecGen</title>
+<style>body{font-family:system-ui;background:#0c0f17;color:#e2e8f0;padding:24px}.card{max-width:740px;margin:0 auto;background:#141a29;padding:22px;border-radius:12px}input{width:100%;box-sizing:border-box;background:#0c0f17;color:#fff;padding:8px;border-radius:6px;border:1px solid #26314a;margin:6px 0}button{background:#3b82f6;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:8px}</style></head>
+<body><div class="card"><h1>OpenBuild SpecGen</h1><p>Instant engineering spec &amp; test-plan generator.</p><input id="n" value="AgentRouter"><input id="s" value="TypeScript + Vite"><input id="g" value="Route prompts safely"><button id="b">Generate Spec</button><pre id="o"></pre></div>
+<script type="module">import { generateSpec } from "./specgen.mjs"; document.getElementById("b").onclick = () => { document.getElementById("o").textContent = generateSpec({ name: n.value, stack: s.value, goal: g.value }); };</script></body></html>
