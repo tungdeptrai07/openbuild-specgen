@@ -1,5 +1,153 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>OpenBuild SpecGen</title>
-<style>body{font-family:system-ui;background:#0c0f17;color:#e2e8f0;padding:24px}.card{max-width:740px;margin:0 auto;background:#141a29;padding:22px;border-radius:12px}input{width:100%;box-sizing:border-box;background:#0c0f17;color:#fff;padding:8px;border-radius:6px;border:1px solid #26314a;margin:6px 0}button{background:#3b82f6;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:8px}</style></head>
-<body><div class="card"><h1>OpenBuild SpecGen</h1><p>Instant engineering spec &amp; test-plan generator.</p><input id="n" value="AgentRouter"><input id="s" value="TypeScript + Vite"><input id="g" value="Route prompts safely"><button id="b">Generate Spec</button><pre id="o"></pre></div>
-<script type="module">import { generateSpec } from "./specgen.mjs"; document.getElementById("b").onclick = () => { document.getElementById("o").textContent = generateSpec({ name: n.value, stack: s.value, goal: g.value }); };</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenBuild SpecGen — Instant Engineering RFC, OpenAPI 3.1 &amp; Threat Model Studio</title>
+  <style>
+    :root { --bg: #080b16; --card: #11162a; --card2: #18203c; --border: #2a3761; --fg: #f1f5f9; --muted: #94a3b8; --accent: #818cf8; --cyan: #38bdf8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: radial-gradient(circle at top left, #1c1f4a, var(--bg) 55%); color: var(--fg); line-height: 1.5; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.3rem; }
+    h1 { margin: 0; font-size: 1.65rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin: 0.2rem 0 0; }
+    .btns { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    button { background: var(--card2); color: var(--fg); border: 1px solid var(--border); padding: 0.48rem 0.85rem; border-radius: 8px; font-weight: 600; font-size: 0.83rem; cursor: pointer; }
+    button.primary { background: linear-gradient(135deg, #6366f1, #0284c7); border-color: transparent; color: #fff; }
+    button.tab.active { background: var(--accent); color: #080b16; border-color: transparent; }
+    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 1.2rem; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.15rem; margin-bottom: 1.1rem; }
+    .panel h2 { margin: 0 0 0.8rem; font-size: 1rem; color: #cbd5e1; }
+    .field { margin-bottom: 0.68rem; }
+    .field label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .field input, .field textarea { width: 100%; background: #090d1a; border: 1px solid var(--border); border-radius: 7px; padding: 0.46rem 0.6rem; color: var(--fg); font: inherit; font-size: 0.88rem; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 1.1rem; }
+    .kpi { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem; }
+    .kpi .lbl { font-size: 0.74rem; color: var(--muted); text-transform: uppercase; }
+    .kpi .val { font-size: 1.25rem; font-weight: 700; margin-top: 0.2rem; color: var(--cyan); }
+    pre { margin: 0; background: #070a14; border: 1px solid var(--border); border-radius: 10px; padding: 1rem; overflow: auto; max-height: 460px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; color: #e2e8f0; white-space: pre-wrap; }
+    .stride-item { background: #0a0f1f; border: 1px solid var(--border); border-radius: 9px; padding: 0.6rem 0.8rem; margin-bottom: 0.5rem; font-size: 0.86rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>OpenBuild SpecGen</h1>
+        <p class="sub">Zero-Dependency Engineering RFC, OpenAPI 3.1 Contract, Little's Law SLO Capacity &amp; STRIDE Threat Model Studio</p>
+      </div>
+      <div class="btns">
+        <button data-tpl="ai_agent_api">AI Gateway</button>
+        <button data-tpl="fintech_ledger">Fintech Ledger</button>
+        <button data-tpl="civic_portal">Civic Data Hub</button>
+        <button class="primary" id="dlMd">Export RFC (.md)</button>
+        <button id="dlYaml">Export OpenAPI (.yaml)</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <aside class="panel">
+        <h2>System Specification</h2>
+        <div class="field"><label>Project / Service Name</label><input id="projectName" /></div>
+        <div class="field"><label>Owner / Team</label><input id="owner" /></div>
+        <div class="field"><label>Problem Domain</label><input id="domain" /></div>
+        <div class="field"><label>Target Peak RPS</label><input id="targetRps" type="number" /></div>
+        <div class="field"><label>P99 Latency Budget (ms)</label><input id="p99BudgetMs" type="number" /></div>
+        <div class="field"><label>Auth Strategy</label><input id="authMode" /></div>
+        <div class="field"><label>Storage / Data Stack</label><input id="storageStack" /></div>
+        <div class="field"><label>Endpoints (METHOD /path | summary, one per line)</label><textarea id="endpoints" rows="5"></textarea></div>
+      </aside>
+
+      <main>
+        <div class="kpis" id="kpis"></div>
+
+        <div class="panel">
+          <div class="btns" style="margin-bottom:0.85rem">
+            <button class="tab active" data-tab="md">Engineering RFC (.md)</button>
+            <button class="tab" data-tab="yaml">OpenAPI 3.1 (.yaml)</button>
+            <button class="tab" data-tab="stride">STRIDE Threat Model</button>
+          </div>
+          <div id="tabBody"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module">
+    import { TEMPLATES, generateSpec } from "./specgen.mjs";
+
+    let activeTab = "md";
+    let latest = null;
+
+    function parseEndpoints(text) {
+      return text.split("\n").map(l => l.trim()).filter(Boolean).map(line => {
+        const [left, summary] = line.split("|").map(s => (s || "").trim());
+        const [method, path] = (left || "GET /v1/health").split(/\s+/);
+        return { method: (method || "GET").toUpperCase(), path: path || "/v1/resource", summary: summary || "Endpoint operation" };
+      });
+    }
+
+    function applyTemplate(key) {
+      const t = TEMPLATES[key];
+      document.getElementById("projectName").value = t.projectName;
+      document.getElementById("owner").value = t.owner;
+      document.getElementById("domain").value = t.domain;
+      document.getElementById("targetRps").value = t.targetRps;
+      document.getElementById("p99BudgetMs").value = t.p99BudgetMs;
+      document.getElementById("authMode").value = t.authMode;
+      document.getElementById("storageStack").value = t.storageStack;
+      document.getElementById("endpoints").value = t.endpoints.map(e => `${e.method} ${e.path} | ${e.summary}`).join("\n");
+      render();
+    }
+
+    function render() {
+      latest = generateSpec({
+        projectName: document.getElementById("projectName").value,
+        owner: document.getElementById("owner").value,
+        domain: document.getElementById("domain").value,
+        targetRps: Number(document.getElementById("targetRps").value),
+        p99BudgetMs: Number(document.getElementById("p99BudgetMs").value),
+        authMode: document.getElementById("authMode").value,
+        storageStack: document.getElementById("storageStack").value,
+        endpoints: parseEndpoints(document.getElementById("endpoints").value)
+      });
+
+      const c = latest.capacity;
+      document.getElementById("kpis").innerHTML = `
+        <div class="kpi"><div class="lbl">Monthly Volume</div><div class="val">${c.monthlyRequestsM}M req</div></div>
+        <div class="kpi"><div class="lbl">Peak Concurrency</div><div class="val">${c.concurrency} in-flight</div></div>
+        <div class="kpi"><div class="lbl">Baseline Replicas</div><div class="val">${c.recommendedReplicas} pods</div></div>
+        <div class="kpi"><div class="lbl">SLO Target</div><div class="val" style="font-size:0.95rem">${c.availabilityTarget}</div></div>
+      `;
+
+      const body = document.getElementById("tabBody");
+      if (activeTab === "md") body.innerHTML = `<pre>${latest.markdown.replace(/</g, "&lt;")}</pre>`;
+      else if (activeTab === "yaml") body.innerHTML = `<pre>${latest.openApi.replace(/</g, "&lt;")}</pre>`;
+      else body.innerHTML = latest.strideChecklist.map(s => `<div class="stride-item"><strong>${s.threat}:</strong> ${s.mitigation}</div>`).join("");
+    }
+
+    function download(name, content, mime) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+      a.download = name;
+      a.click();
+    }
+
+    document.querySelectorAll("[data-tpl]").forEach(b => b.addEventListener("click", () => applyTemplate(b.dataset.tpl)));
+    document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => {
+      activeTab = b.dataset.tab;
+      document.querySelectorAll("[data-tab]").forEach(x => x.classList.toggle("active", x.dataset.tab === activeTab));
+      render();
+    }));
+    ["projectName", "owner", "domain", "targetRps", "p99BudgetMs", "authMode", "storageStack", "endpoints"].forEach(id => {
+      document.getElementById(id).addEventListener("input", render);
+    });
+    document.getElementById("dlMd").addEventListener("click", () => latest && download("engineering-rfc.md", latest.markdown, "text/markdown"));
+    document.getElementById("dlYaml").addEventListener("click", () => latest && download("openapi-3.1.yaml", latest.openApi, "text/yaml"));
+
+    applyTemplate("ai_agent_api");
+  </script>
+</body>
+</html>
